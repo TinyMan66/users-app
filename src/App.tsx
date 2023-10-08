@@ -3,6 +3,8 @@ import "./styles.css";
 
 import Requirements from "./Requirements";
 import {Loading} from "./Loading";
+import {useEffect, useState} from "react";
+import {UserItem} from "./UserItem";
 
 // Примеры вызова функций, в консоли можно увидеть возвращаемые результаты
 requestUsers({ name: "", age: "", limit: 4, offset: 0 }).then(console.log);
@@ -11,10 +13,22 @@ requestUsersWithError({ name: "", age: "", limit: 4, offset: 0 }).catch(
 );
 
 export default function App() {
-  return (
+    const [users, setUsers] = useState<User[]>([]);
+
+    useEffect(() => {
+        requestUsers()
+            .then((data) => {
+                setUsers(data);
+            })
+            .catch((err) => {
+            });
+    }, []);
+
+
+    return (
       <div>
         <Loading/>
-        <Requirements/>
+          {users.map(user => <UserItem key={user.id} user={user}/>)}
       </div>
 );
 }

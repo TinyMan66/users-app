@@ -15,6 +15,7 @@ requestUsersWithError({ name: "", age: "", limit: 4, offset: 0 }).catch(
 export default function App() {
     const [users, setUsers] = useState<User[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
+    const [error, setError] = useState(null);
 
     useEffect(() => {
         setLoading(true);
@@ -24,15 +25,22 @@ export default function App() {
                 setLoading(false);
             })
             .catch((err) => {
+                setError(err.toString());
                 setLoading(false);
             });
     }, []);
 
+    const usersList = () => {
+        if(loading) return <Loading/>;
+        if(error) return <p style={{color: "red"}}>{error}</p>;
+        if (users.length === 0) return <p>Users not found</p>;
+        return users.map(user => <UserItem key={user.id} user={user}/>);
+    }
 
     return (
       <div>
-          {loading && <Loading/>}
-          {!loading && users.map(user => <UserItem key={user.id} user={user}/>)}
+          <h2>Users List</h2>
+          {usersList()}
       </div>
 );
 }

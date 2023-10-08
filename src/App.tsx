@@ -14,21 +14,25 @@ requestUsersWithError({ name: "", age: "", limit: 4, offset: 0 }).catch(
 
 export default function App() {
     const [users, setUsers] = useState<User[]>([]);
+    const [loading, setLoading] = useState<boolean>(true);
 
     useEffect(() => {
+        setLoading(true);
         requestUsers()
             .then((data) => {
                 setUsers(data);
+                setLoading(false);
             })
             .catch((err) => {
+                setLoading(false);
             });
     }, []);
 
 
     return (
       <div>
-        <Loading/>
-          {users.map(user => <UserItem key={user.id} user={user}/>)}
+          {loading && <Loading/>}
+          {!loading && users.map(user => <UserItem key={user.id} user={user}/>)}
       </div>
 );
 }

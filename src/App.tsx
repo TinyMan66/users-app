@@ -16,6 +16,7 @@ export default function App() {
     const [users, setUsers] = useState<User[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
     const [error, setError] = useState(null);
+    const [query, setQuery] = useState<Query>({ name: "", age: "", limit: 4, offset: 0 })
 
     useEffect(() => {
         setLoading(true);
@@ -35,11 +36,24 @@ export default function App() {
         if(error) return <p style={{color: "red"}}>{error}</p>;
         if (users.length === 0) return <p>Users not found</p>;
         return users.map(user => <UserItem key={user.id} user={user}/>);
-    }
+    };
 
     return (
       <div>
           <h2>Users List</h2>
+          <input
+              type="text"
+              name="name"
+              placeholder="Name"
+              value={query.name}
+          />
+          <input
+              type="number"
+              min="0"
+              name="age"
+              placeholder="Age"
+              value={query.age}
+          />
           {usersList()}
       </div>
 );

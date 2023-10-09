@@ -18,10 +18,29 @@ export default function App() {
     const [error, setError] = useState(null);
     const [query, setQuery] = useState<Query>({ name: "", age: "", limit: 4, offset: 0 })
 
+    const nameChangeHandler = (event: React.ChangeEvent<HTMLInputElement>) => {
+        const value = event.target.value;
+        setQuery({
+            ...query,
+            name: value,
+            offset: 0
+        });
+    };
+
+    const ageChangeHandler = (event: React.ChangeEvent<HTMLInputElement>) => {
+        const value = event.target.value;
+        setQuery({
+            ...query,
+            age: value,
+            offset: 0
+        });
+    };
+
     useEffect(() => {
         setLoading(true);
-        requestUsers()
+        requestUsers(query)
             .then((data) => {
+                setLoading(true);
                 setUsers(data);
                 setLoading(false);
             })
@@ -29,7 +48,7 @@ export default function App() {
                 setError(err.toString());
                 setLoading(false);
             });
-    }, []);
+    }, [query]);
 
     const usersList = () => {
         if(loading) return <Loading/>;
@@ -46,6 +65,7 @@ export default function App() {
               name="name"
               placeholder="Name"
               value={query.name}
+              onChange={nameChangeHandler}
           />
           <input
               type="number"
@@ -53,6 +73,7 @@ export default function App() {
               name="age"
               placeholder="Age"
               value={query.age}
+              onChange={ageChangeHandler}
           />
           {usersList()}
       </div>

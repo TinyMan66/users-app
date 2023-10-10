@@ -47,6 +47,18 @@ export default function App() {
         </option>
     ));
 
+    const prevPage = () => {
+        const newOffset = Math.max(query.offset - query.limit, 0);
+        setQuery({ ...query, offset: newOffset });
+    };
+
+    const nextPage = () => {
+        const newOffset = query.offset + query.limit;
+        setQuery({ ...query, offset: newOffset });
+    };
+
+    const pageNumber = Math.ceil(query.offset / query.limit) + 1;
+
     useEffect(() => {
         setLoading(true);
         requestUsers(query)
@@ -92,6 +104,13 @@ export default function App() {
               <select value={query.limit.toString()} onChange={limitChangeHandler}>
                   {limitOptions}
               </select>
+              <button onClick={prevPage} disabled={query.offset === 0}>
+                  Prev
+              </button>
+              <span>page: {pageNumber}</span>
+              <button onClick={nextPage} disabled={users.length < query.limit}>
+                  Next
+              </button>
           </div>
       </div>
 );

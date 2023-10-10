@@ -3,7 +3,7 @@ import "./styles.css";
 
 import Requirements from "./Requirements";
 import {Loading} from "./Loading";
-import {useEffect, useState} from "react";
+import {ChangeEvent, useEffect, useState} from "react";
 import {UserItem} from "./UserItem";
 
 // Примеры вызова функций, в консоли можно увидеть возвращаемые результаты
@@ -18,7 +18,7 @@ export default function App() {
     const [error, setError] = useState(null);
     const [query, setQuery] = useState<Query>({ name: "", age: "", limit: 4, offset: 0 })
 
-    const nameChangeHandler = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const nameChangeHandler = (event: ChangeEvent<HTMLInputElement>) => {
         const value = event.target.value;
         setQuery({
             ...query,
@@ -27,7 +27,7 @@ export default function App() {
         });
     };
 
-    const ageChangeHandler = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const ageChangeHandler = (event: ChangeEvent<HTMLInputElement>) => {
         const value = event.target.value;
         setQuery({
             ...query,
@@ -35,6 +35,17 @@ export default function App() {
             offset: 0
         });
     };
+
+    const limitChangeHandler = (event: ChangeEvent<HTMLSelectElement>) => {
+        const newLimit = parseInt(event.target.value, 10);
+        setQuery({ ...query, limit: newLimit, offset: 0 });
+    };
+
+    const limitOptions = [4, 8, 12].map((limit) => (
+        <option key={limit} value={limit.toString()}>
+            {limit}
+        </option>
+    ));
 
     useEffect(() => {
         setLoading(true);
@@ -76,6 +87,12 @@ export default function App() {
               onChange={ageChangeHandler}
           />
           {usersList()}
+          <div>
+              By page:
+              <select value={query.limit.toString()} onChange={limitChangeHandler}>
+                  {limitOptions}
+              </select>
+          </div>
       </div>
 );
 }

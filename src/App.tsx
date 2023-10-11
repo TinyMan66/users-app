@@ -1,19 +1,11 @@
 import { requestUsers, requestUsersWithError, User, Query } from "./api";
 import "./styles.css";
-
-import Requirements from "./Requirements";
 import {Loading} from "./Loading";
-import {ChangeEvent, ReactNode, useCallback, useEffect, useState} from "react";
+import {ChangeEvent, ReactNode, useCallback, useEffect, useRef, useState} from "react";
 import {UserItem} from "./UserItem";
 import {useDebounce} from "./hooks/useDebounce";
 import {FiltersData, PaginationData} from "./types";
 import {Pagination} from "./Pagination";
-
-// Примеры вызова функций, в консоли можно увидеть возвращаемые результаты
-requestUsers({ name: "", age: "", limit: 4, offset: 0 }).then(console.log);
-requestUsersWithError({ name: "", age: "", limit: 4, offset: 0 }).catch(
-  console.error
-);
 
 const initialFiltersValues: FiltersData = {
     name: "",
@@ -28,10 +20,11 @@ const initialPaginationValues: PaginationData = {
 export default function App() {
     const [users, setUsers] = useState<User[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
-    const [error, setError] = useState(null);
+    const [error, setError] = useState<string |null>(null);
     const [filters, setFilters] = useState<FiltersData>(initialFiltersValues);
     const [pagination, setPagination] = useState<PaginationData>(initialPaginationValues);
     const debouncedFilters = useDebounce(filters);
+    const prevQueryRef = useRef<Query | null>(null);
 
     const patchFormFromInput = useCallback(({target}: ChangeEvent<HTMLInputElement>) => {
         setFilters((prev) => ({
@@ -43,19 +36,25 @@ export default function App() {
     );
 
     useEffect(() => {
-        setLoading(true);
-        const query = {...pagination, ...debouncedFilters}
-        requestUsers(query)
-            .then((data) => {
-                setLoading(true);
-                setUsers(data);
+        const request = async () => {
+            setLoading(true);
+            const query = {...pagination, ...debouncedFilters};
+            prevQueryRef.current = query;
+
+            try {
+                const fetchedUsers = await requestUsers(query);
+                if (prevQueryRef.current !== query) return;
+                setUsers(fetchedUsers);
+            } catch (err) {
+                if (prevQueryRef.current ! == query) return;
+                if (err) setError(((err as Record<string, string>) || {}).message);
+            } finally {
+                if (prevQueryRef.current ! == query) return;
                 setLoading(false);
-            })
-            .catch((err) => {
-                setError(err.toString());
-                setLoading(false);
-            });
-    }, [pagination, debouncedFilters]);
+            }
+        };
+        request();
+    },[pagination, debouncedFilters]);
 
     const usersList = (): ReactNode => {
         if(loading) return <Loading/>;

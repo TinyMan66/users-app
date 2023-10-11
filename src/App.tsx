@@ -3,9 +3,10 @@ import "./styles.css";
 
 import Requirements from "./Requirements";
 import {Loading} from "./Loading";
-import {ChangeEvent, ReactNode, useEffect, useState} from "react";
+import {ChangeEvent, ReactNode, useCallback, useEffect, useState} from "react";
 import {UserItem} from "./UserItem";
 import {useDebounce} from "./hooks/useDebounce";
+import {FiltersData, PaginationData} from "./types";
 
 // Примеры вызова функций, в консоли можно увидеть возвращаемые результаты
 requestUsers({ name: "", age: "", limit: 4, offset: 0 }).then(console.log);
@@ -13,34 +14,36 @@ requestUsersWithError({ name: "", age: "", limit: 4, offset: 0 }).catch(
   console.error
 );
 
+const initialFiltersValues: FiltersData = {
+    name: "",
+    age: "",
+};
+
+const initialPaginationValues: PaginationData = {
+    limit: 4,
+    offset: 0
+};
+
 export default function App() {
     const [users, setUsers] = useState<User[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
     const [error, setError] = useState(null);
-    const [query, setQuery] = useState<Query>({ name: "", age: "", limit: 4, offset: 0 })
-    const debouncedQuery = useDebounce(query);
+    const [filters, setFilters] = useState<FiltersData>(initialFiltersValues);
+    const [pagination, setPagination] = useState<PaginationData>(initialPaginationValues);
+    const debouncedFilters = useDebounce(filters);
 
-    const nameChangeHandler = (event: ChangeEvent<HTMLInputElement>) => {
-        const value = event.target.value;
-        setQuery({
-            ...query,
-            name: value,
-            offset: 0
-        });
-    };
-
-    const ageChangeHandler = (event: ChangeEvent<HTMLInputElement>) => {
-        const value = event.target.value;
-        setQuery({
-            ...query,
-            age: value,
-            offset: 0
-        });
-    };
+    const patchFormFromInput = useCallback(({target}: ChangeEvent<HTMLInputElement>) => {
+        setFilters((prev) => ({
+            ...prev,
+            [target.name]: target.value
+        }));
+        setPagination(initialPaginationValues);
+        }, []
+    );
 
     const limitChangeHandler = (event: ChangeEvent<HTMLSelectElement>) => {
         const newLimit = parseInt(event.target.value, 10);
-        setQuery({ ...query, limit: newLimit, offset: 0 });
+        setPagination({ ...pagination, limit: newLimit, offset: 0 });
     };
 
     const limitOptions = [4, 8, 12].map((limit) => (
@@ -50,20 +53,21 @@ export default function App() {
     ));
 
     const prevPage = () => {
-        const newOffset = Math.max(query.offset - query.limit, 0);
-        setQuery({ ...query, offset: newOffset });
+        const newOffset = Math.max(pagination.offset - pagination.limit, 0);
+        setPagination({ ...pagination, offset: newOffset });
     };
 
     const nextPage = () => {
-        const newOffset = query.offset + query.limit;
-        setQuery({ ...query, offset: newOffset });
+        const newOffset = pagination.offset + pagination.limit;
+        setPagination({ ...pagination, offset: newOffset });
     };
 
-    const pageNumber = Math.ceil(query.offset / query.limit) + 1;
+    const pageNumber = Math.ceil(pagination.offset / pagination.limit) + 1;
 
     useEffect(() => {
         setLoading(true);
-        requestUsers(debouncedQuery)
+        const query = {...pagination, ...debouncedFilters}
+        requestUsers(query)
             .then((data) => {
                 setLoading(true);
                 setUsers(data);
@@ -73,7 +77,7 @@ export default function App() {
                 setError(err.toString());
                 setLoading(false);
             });
-    }, [debouncedQuery]);
+    }, [pagination, debouncedFilters]);
 
     const usersList = (): ReactNode => {
         if(loading) return <Loading/>;
@@ -89,28 +93,28 @@ export default function App() {
               type="text"
               name="name"
               placeholder="Name"
-              value={query.name}
-              onChange={nameChangeHandler}
+              value={filters.name}
+              onChange={patchFormFromInput}
           />
           <input
               type="number"
               min="0"
               name="age"
               placeholder="Age"
-              value={query.age}
-              onChange={ageChangeHandler}
+              value={filters.age}
+              onChange={patchFormFromInput}
           />
           {usersList()}
           <div>
               By page:
-              <select value={query.limit.toString()} onChange={limitChangeHandler}>
+              <select value={pagination.limit.toString()} onChange={limitChangeHandler}>
                   {limitOptions}
               </select>
-              <button onClick={prevPage} disabled={query.offset === 0}>
+              <button onClick={prevPage} disabled={pagination.offset === 0}>
                   Prev
               </button>
               <span>page: {pageNumber}</span>
-              <button onClick={nextPage} disabled={users.length < query.limit}>
+              <button onClick={nextPage} disabled={users.length < pagination.limit}>
                   Next
               </button>
           </div>

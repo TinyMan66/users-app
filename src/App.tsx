@@ -7,6 +7,7 @@ import {ChangeEvent, ReactNode, useCallback, useEffect, useState} from "react";
 import {UserItem} from "./UserItem";
 import {useDebounce} from "./hooks/useDebounce";
 import {FiltersData, PaginationData} from "./types";
+import {Pagination} from "./Pagination";
 
 // Примеры вызова функций, в консоли можно увидеть возвращаемые результаты
 requestUsers({ name: "", age: "", limit: 4, offset: 0 }).then(console.log);
@@ -40,29 +41,6 @@ export default function App() {
         setPagination(initialPaginationValues);
         }, []
     );
-
-    const limitChangeHandler = (event: ChangeEvent<HTMLSelectElement>) => {
-        const newLimit = parseInt(event.target.value, 10);
-        setPagination({ ...pagination, limit: newLimit, offset: 0 });
-    };
-
-    const limitOptions = [4, 8, 12].map((limit) => (
-        <option key={limit} value={limit.toString()}>
-            {limit}
-        </option>
-    ));
-
-    const prevPage = () => {
-        const newOffset = Math.max(pagination.offset - pagination.limit, 0);
-        setPagination({ ...pagination, offset: newOffset });
-    };
-
-    const nextPage = () => {
-        const newOffset = pagination.offset + pagination.limit;
-        setPagination({ ...pagination, offset: newOffset });
-    };
-
-    const pageNumber = Math.ceil(pagination.offset / pagination.limit) + 1;
 
     useEffect(() => {
         setLoading(true);
@@ -105,19 +83,7 @@ export default function App() {
               onChange={patchFormFromInput}
           />
           {usersList()}
-          <div>
-              By page:
-              <select value={pagination.limit.toString()} onChange={limitChangeHandler}>
-                  {limitOptions}
-              </select>
-              <button onClick={prevPage} disabled={pagination.offset === 0}>
-                  Prev
-              </button>
-              <span>page: {pageNumber}</span>
-              <button onClick={nextPage} disabled={users.length < pagination.limit}>
-                  Next
-              </button>
-          </div>
+          <Pagination value={pagination} setValue={setPagination}/>
       </div>
 );
 }

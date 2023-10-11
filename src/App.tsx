@@ -3,8 +3,9 @@ import "./styles.css";
 
 import Requirements from "./Requirements";
 import {Loading} from "./Loading";
-import {ChangeEvent, useEffect, useState} from "react";
+import {ChangeEvent, ReactNode, useEffect, useState} from "react";
 import {UserItem} from "./UserItem";
+import {useDebounce} from "./hooks/useDebounce";
 
 // Примеры вызова функций, в консоли можно увидеть возвращаемые результаты
 requestUsers({ name: "", age: "", limit: 4, offset: 0 }).then(console.log);
@@ -17,6 +18,7 @@ export default function App() {
     const [loading, setLoading] = useState<boolean>(true);
     const [error, setError] = useState(null);
     const [query, setQuery] = useState<Query>({ name: "", age: "", limit: 4, offset: 0 })
+    const debouncedQuery = useDebounce(query);
 
     const nameChangeHandler = (event: ChangeEvent<HTMLInputElement>) => {
         const value = event.target.value;
@@ -61,7 +63,7 @@ export default function App() {
 
     useEffect(() => {
         setLoading(true);
-        requestUsers(query)
+        requestUsers(debouncedQuery)
             .then((data) => {
                 setLoading(true);
                 setUsers(data);
@@ -71,9 +73,9 @@ export default function App() {
                 setError(err.toString());
                 setLoading(false);
             });
-    }, [query]);
+    }, [debouncedQuery]);
 
-    const usersList = () => {
+    const usersList = (): ReactNode => {
         if(loading) return <Loading/>;
         if(error) return <p style={{color: "red"}}>{error}</p>;
         if (users.length === 0) return <p>Users not found</p>;

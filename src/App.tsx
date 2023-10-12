@@ -48,10 +48,8 @@ export default function App() {
             } catch (err) {
                 if (prevQueryRef.current ! == query) return;
                 if (err) setError(((err as Record<string, string>) || {}).message);
-            } finally {
-                if (prevQueryRef.current ! == query) return;
-                setLoading(false);
             }
+            setLoading(false);
         };
         request();
     },[pagination, debouncedFilters]);

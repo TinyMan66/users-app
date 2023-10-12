@@ -8,6 +8,7 @@ interface PaginationProps {
 
 export const Pagination: FC<PaginationProps> = ({value, setValue}) => {
     const pageNumber = Math.ceil(value.offset / value.limit + 1);
+
     const limitChangeHandler = useCallback(
         (e: ChangeEvent<HTMLSelectElement>) =>
             setValue({
@@ -16,6 +17,7 @@ export const Pagination: FC<PaginationProps> = ({value, setValue}) => {
             }),
         [setValue]
     );
+
     const onPrevPage = useCallback(() => {
         setValue((prev) => ({
             ...prev,
@@ -29,11 +31,6 @@ export const Pagination: FC<PaginationProps> = ({value, setValue}) => {
             offset: prev.offset + prev.limit
         }));
     }, [setValue]);
-
-    // const limitChangeHandler = (event: ChangeEvent<HTMLSelectElement>) => {
-    //     const newLimit = parseInt(event.target.value, 10);
-    //     setPagination({ ...pagination, limit: newLimit, offset: 0 });
-    // };
 
     const limitOptions = [4, 8, 12].map((limit) => (
         <option key={limit} value={limit.toString()}>

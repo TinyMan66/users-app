@@ -1,4 +1,4 @@
-export const validateInputs = (newValue: string, name: string) => {
+export const validationUtils = (newValue: string, name: string) => {
     let errorMessage = null;
 
     if (name === "name") {

@@ -1,5 +1,5 @@
 import React, {ChangeEvent, Dispatch, FC, SetStateAction, useCallback} from 'react';
-import {PaginationData} from "./types";
+import {PaginationData} from "../common/types/types";
 
 interface PaginationProps {
     value: PaginationData;

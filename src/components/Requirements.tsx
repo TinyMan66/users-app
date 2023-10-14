@@ -1,5 +1,5 @@
 import { FC } from "react";
-import exampleImg from "./assets/example.png";
+import exampleImg from "src/assets/example.png";
 
 const Requirements: FC = () => (
   <div>

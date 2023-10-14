@@ -1,12 +1,12 @@
 import { requestUsers, requestUsersWithError, User, Query } from "./api";
 import "./styles.css";
-import {Loading} from "./Loading";
+import {Loading} from "./components/Loading";
 import {ChangeEvent, ReactNode, useCallback, useEffect, useRef, useState} from "react";
-import {UserItem} from "./UserItem";
-import {useDebounce} from "./hooks/useDebounce";
-import {FiltersData, PaginationData} from "./types";
-import {Pagination} from "./Pagination";
-import {validateInputs} from "./validation";
+import {UserItem} from "./components/UserItem";
+import {useDebounce} from "./common/hooks/useDebounce";
+import {FiltersData, PaginationData} from "./common/types/types";
+import {Pagination} from "./components/Pagination"
+import {validationUtils} from "./common/utils/validationUtils";
 
 const initialFiltersValues: FiltersData = {
     name: "",
@@ -30,7 +30,7 @@ export default function App() {
 
     const patchFormFromInput = useCallback(({ target }: ChangeEvent<HTMLInputElement>) => {
         let newValue = target.value.trim();
-        const errorMessage = validateInputs(newValue, target.name);
+        const errorMessage = validationUtils(newValue, target.name);
 
         setError(errorMessage);
         setFilters((prev) => ({

@@ -34,8 +34,6 @@ export default function App() {
         if (target.name === "name") {
             if (!/^[A-Za-z]*$/.test(newValue)) {
                 errorMessage = "Only alphabetical letters are allowed!";
-            } else if(newValue.length > 15) {
-                errorMessage = "The name cannot be longer than 15 characters";
             }
         } else if (target.name === "age") {
             if (!/^\d*$/.test(newValue)) {

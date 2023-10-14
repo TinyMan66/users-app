@@ -19,10 +19,11 @@ const initialPaginationValues: PaginationData = {
 
 export default function App() {
     const [users, setUsers] = useState<User[]>([]);
-    const [loading, setLoading] = useState<boolean>(true);
+    const [isLoading, setIsLoading] = useState<boolean>(true);
     const [error, setError] = useState<string |null>(null);
     const [filters, setFilters] = useState<FiltersData>(initialFiltersValues);
     const [pagination, setPagination] = useState<PaginationData>(initialPaginationValues);
+
     const debouncedFilters = useDebounce(filters);
     const prevQueryRef = useRef<Query | null>(null);
 
@@ -37,7 +38,7 @@ export default function App() {
 
     useEffect(() => {
         const request = async () => {
-            setLoading(true);
+            setIsLoading(true);
             const query = {...pagination, ...debouncedFilters};
             prevQueryRef.current = query;
 
@@ -49,13 +50,13 @@ export default function App() {
                 if (prevQueryRef.current ! == query) return;
                 if (err) setError(((err as Record<string, string>) || {}).message);
             }
-            setLoading(false);
+            setIsLoading(false);
         };
         request();
     },[pagination, debouncedFilters]);
 
     const usersList = (): ReactNode => {
-        if(loading) return <Loading/>;
+        if(isLoading) return <Loading/>;
         if(error) return <p style={{color: "red"}}>{error}</p>;
         if (users.length === 0) return <p>Users not found</p>;
         return users.map(user => <UserItem key={user.id} user={user}/>);
@@ -80,7 +81,7 @@ export default function App() {
               onChange={patchFormFromInput}
           />
           {usersList()}
-          <Pagination value={pagination} setValue={setPagination}/>
+          <Pagination value={pagination} setValue={setPagination} isLoading={isLoading} totalUsers={users.length}/>
       </div>
 );
 }

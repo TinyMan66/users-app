@@ -4,9 +4,11 @@ import {PaginationData} from "./types";
 interface PaginationProps {
     value: PaginationData;
     setValue: Dispatch<SetStateAction<PaginationData>>;
+    isLoading: boolean;
+    totalUsers: number;
 }
 
-export const Pagination: FC<PaginationProps> = ({value, setValue}) => {
+export const Pagination: FC<PaginationProps> = ({value, setValue, isLoading, totalUsers}) => {
     const pageNumber = Math.ceil(value.offset / value.limit + 1);
 
     const limitChangeHandler = useCallback(
@@ -45,11 +47,11 @@ export const Pagination: FC<PaginationProps> = ({value, setValue}) => {
                 <select value={value.limit.toString()} onChange={limitChangeHandler}>
                     {limitOptions}
                 </select>
-                <button onClick={onPrevPage} disabled={pageNumber === 1}>
+                <button onClick={onPrevPage} disabled={pageNumber === 1 || isLoading}>
                     Prev
                 </button>
                 <span>page: {pageNumber}</span>
-                <button onClick={onNextPage}>
+                <button onClick={onNextPage} disabled={pageNumber === totalUsers || isLoading}>
                     Next
                 </button>
             </div>

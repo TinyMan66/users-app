@@ -6,6 +6,7 @@ import {UserItem} from "./UserItem";
 import {useDebounce} from "./hooks/useDebounce";
 import {FiltersData, PaginationData} from "./types";
 import {Pagination} from "./Pagination";
+import {validateInputs} from "./validation";
 
 const initialFiltersValues: FiltersData = {
     name: "",
@@ -29,19 +30,7 @@ export default function App() {
 
     const patchFormFromInput = useCallback(({ target }: ChangeEvent<HTMLInputElement>) => {
         let newValue = target.value.trim();
-        let errorMessage = null;
-
-        if (target.name === "name") {
-            if (!/^[A-Za-z]*$/.test(newValue)) {
-                errorMessage = "Only alphabetical letters are allowed!";
-            }
-        } else if (target.name === "age") {
-            if (!/^\d*$/.test(newValue)) {
-                errorMessage = "Only numeric characters are allowed!";
-            } else if(newValue.length > 3) {
-                errorMessage = "The age must be in the range 1-100!";
-            }
-        }
+        const errorMessage = validateInputs(newValue, target.name);
 
         setError(errorMessage);
         setFilters((prev) => ({

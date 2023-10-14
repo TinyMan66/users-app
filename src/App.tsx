@@ -28,22 +28,23 @@ export default function App() {
     const prevQueryRef = useRef<Query | null>(null);
 
     const patchFormFromInput = useCallback(({ target }: ChangeEvent<HTMLInputElement>) => {
-        let newValue = target.value;
+        let newValue = target.value.trim();
         let errorMessage = null;
 
         if (target.name === "name") {
-            // Check if "Name" contains non-alphabetical characters
             if (!/^[A-Za-z]*$/.test(newValue)) {
                 errorMessage = "Only alphabetical letters are allowed!";
+            } else if(newValue.length > 15) {
+                errorMessage = "The name cannot be longer than 15 characters";
             }
         } else if (target.name === "age") {
-            // Check if "Age" contains non-numeric characters
             if (!/^\d*$/.test(newValue)) {
                 errorMessage = "Only numeric characters are allowed!";
+            } else if(newValue.length > 3) {
+                errorMessage = "The age must be in the range 1-100!";
             }
         }
 
-        // Set the error message (or clear it if input is valid)
         setError(errorMessage);
         setFilters((prev) => ({
             ...prev,

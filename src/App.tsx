@@ -27,14 +27,30 @@ export default function App() {
     const debouncedFilters = useDebounce(filters);
     const prevQueryRef = useRef<Query | null>(null);
 
-    const patchFormFromInput = useCallback(({target}: ChangeEvent<HTMLInputElement>) => {
+    const patchFormFromInput = useCallback(({ target }: ChangeEvent<HTMLInputElement>) => {
+        let newValue = target.value;
+        let errorMessage = null;
+
+        if (target.name === "name") {
+            // Check if "Name" contains non-alphabetical characters
+            if (!/^[A-Za-z]*$/.test(newValue)) {
+                errorMessage = "Only alphabetical letters are allowed!";
+            }
+        } else if (target.name === "age") {
+            // Check if "Age" contains non-numeric characters
+            if (!/^\d*$/.test(newValue)) {
+                errorMessage = "Only numeric characters are allowed!";
+            }
+        }
+
+        // Set the error message (or clear it if input is valid)
+        setError(errorMessage);
         setFilters((prev) => ({
             ...prev,
-            [target.name]: target.value
+            [target.name]: newValue
         }));
         setPagination(initialPaginationValues);
-        }, []
-    );
+    }, []);
 
     useEffect(() => {
         const request = async () => {
@@ -71,6 +87,8 @@ export default function App() {
               placeholder="Name"
               value={filters.name}
               onChange={patchFormFromInput}
+              minLength={2}
+              maxLength={15}
           />
           <input
               type="number"

@@ -51,7 +51,7 @@ export const Pagination: FC<PaginationProps> = ({value, setValue, isLoading, tot
                     Prev
                 </button>
                 <span>page: {pageNumber}</span>
-                <button onClick={onNextPage} disabled={pageNumber === totalUsers || isLoading}>
+                <button onClick={onNextPage} disabled={value.limit > totalUsers || isLoading}>
                     Next
                 </button>
             </div>
